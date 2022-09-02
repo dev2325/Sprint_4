@@ -13,7 +13,7 @@ public class OrderErrorsTextTest extends BaseTest {
     public static void setUp() {
         driver = new ChromeDriver();
         objOrderPage = new OrderPage(driver);
-        driver.get(objOrderPage.orderPageUrl);
+        driver.get(OrderPage.ORDER_PAGE_URL);
         driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS); // дождемся загрузки страницы
         objOrderPage.clickElement(objOrderPage.cookieMessageButton); // согласимся с сообщением про куки
         // покажем все ошибки сразу: введем некорректное имя и нажмем "Далее"

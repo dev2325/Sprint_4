@@ -16,7 +16,7 @@ public class OrderStatusTest extends BaseTest {
     public void setUp() {
         driver = new ChromeDriver();
         objHomePage = new HomePage(driver); // объект класса главной страницы
-        driver.get(objHomePage.homePageUrl);
+        driver.get(HomePage.HOME_PAGE_URL);
         objHomePage.waitForLoadMainImg(); // дождемся загрузки
         objHomePage.clickElement(objHomePage.cookieMessageButton); // согласимся с сообщением про куки
     }

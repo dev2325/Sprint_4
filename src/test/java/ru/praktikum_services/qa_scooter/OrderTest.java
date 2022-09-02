@@ -8,7 +8,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.support.ui.*;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.CoreMatchers.*;
 
@@ -54,8 +55,9 @@ public class OrderTest extends BaseTest {
     @Before
     public void setUp() {
         driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
         objHomePage = new HomePage(driver); // объект класса главной страницы
-        driver.get(objHomePage.homePageUrl);
+        driver.get(HomePage.HOME_PAGE_URL);
         objHomePage.waitForLoadMainImg(); // дождемся загрузки
         objHomePage.clickElement(objHomePage.cookieMessageButton); // согласимся с сообщением про куки
     }
@@ -63,17 +65,10 @@ public class OrderTest extends BaseTest {
     // метод проверяет успешное размещение нового заказа
     @Test
     public void checkPlaceOrderSuccess() {
-        // выбор указанной кнопки "Заказать"
-        By orderButtonLocator;
-        if (orderButtonNum == 1) {
-            orderButtonLocator = objHomePage.buttonPlaceOrderTop;
-        } else {
-            orderButtonLocator = objHomePage.buttonPlaceOrderDown;
-        }
-        // скролл до выбранной кнопки "Заказать" и ее нажатие
-        WebElement buttonOrderElement = driver.findElement(orderButtonLocator);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", buttonOrderElement);
-        objHomePage.clickElement(orderButtonLocator);
+        // получение локатора кнопки "Заказать", скролл до него и нажатие
+        By buttonPlaceOrderLocator = objHomePage.getButtonPlaceOrderLocator(orderButtonNum);
+        objHomePage.scrollToElement(buttonPlaceOrderLocator);
+        objHomePage.clickElement(buttonPlaceOrderLocator);
 
         // создадим объект класса страницы заказа
         objOrderPage = new OrderPage(driver);
@@ -86,40 +81,38 @@ public class OrderTest extends BaseTest {
         objOrderPage.sendKeysToField(objOrderPage.addressLocator, addressString);
         objOrderPage.sendKeysToField(objOrderPage.phoneLocator, phoneString);
 
-        // открытие списка станций метро, скролл до нужного элемента и его выбор
-        objHomePage.clickElement(objOrderPage.metroStationLocator);
-        WebElement metroStationElement = driver.findElement(By.xpath(".//div[contains(text(),'" + metroStationString + "')]"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", metroStationElement);
-        metroStationElement.click();
+        // открытие списка станций метро, получение локатора станции, скролл до него и нажатие
+        objOrderPage.clickElement(objOrderPage.metroListLocator);
+        By metroStationLocator = objOrderPage.getMetroStationLocator(metroStationString);
+        objOrderPage.scrollToElement(metroStationLocator);
+        objOrderPage.clickElement(metroStationLocator);
 
         // нажмем "Далее"
-        objHomePage.clickElement(objOrderPage.orderFormButtonNext);
+        objOrderPage.clickElement(objOrderPage.orderFormButtonNext);
         // дождемся загрузки нужного заголовка
-        new WebDriverWait(driver, 3)
-                .until(ExpectedConditions.textToBePresentInElementLocated(objOrderPage.orderFormTitle, "Про аренду"));
+        objOrderPage.waitTextToBePresentInElement(objOrderPage.orderFormTitle, "Про аренду");
 
         // заполним поля формы "Про аренду"
         // ENTER - для снятия фокуса с дата-пикера
         objOrderPage.sendKeysToField(objOrderPage.deliveryDateLocator, deliveryDateString + Keys.ENTER);
         objOrderPage.sendKeysToField(objOrderPage.commentLocator, commentString);
 
-        // открытие всплывающего списка сроков аренды, скролл до нужного элемента и его выбор
-        objHomePage.clickElement(objOrderPage.rentalPeriodLocator);
-        WebElement rentalPeriodElement = driver.findElement(By.xpath(".//div[contains(text(),'" + rentalPeriodString + "')]"));
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", rentalPeriodElement);
-        rentalPeriodElement.click();
+        // открытие списка сроков аренды, получение локатора срока, скролл до него и нажатие
+        objOrderPage.clickElement(objOrderPage.rentalPeriodListLocator);
+        By rentalPeriodLocator = objOrderPage.getRentalPeriodLocator(rentalPeriodString);
+        objOrderPage.scrollToElement(rentalPeriodLocator);
+        objOrderPage.clickElement(rentalPeriodLocator);
 
-        // составим локатор нужного цвета, найдем его и выберем
-        By colorLocator = By.xpath(".//label[@for='" + colorString + "']");
-        objHomePage.clickElement(colorLocator);
+        // по имени цвета получим нужный локатор и кликнем его
+        By colorLocator = objOrderPage.getColorLocator(colorString);
+        objOrderPage.clickElement(colorLocator);
 
-        // нажмем "Заказать"
-        objHomePage.clickElement(objOrderPage.orderFormButtonSubmit);
-
+        // нажмем "Заказать" в форме
+        objOrderPage.clickElement(objOrderPage.orderFormButtonSubmit);
         // дождемся появления заголовка поп-апа
         objOrderPage.waitForvisibilityOfElement(objOrderPage.orderFormPopupTitle);
         // подтвердим заказ в поп-апе нажав "Да"
-        objHomePage.clickElement(objOrderPage.orderFormPopupButtonSubmit); // в этом месте баг приложения. нажатие не срабатывает
+        objOrderPage.clickElement(objOrderPage.orderFormPopupButtonSubmit); // в этом месте баг приложения. в хром нажатие не срабатывает
 
         // подождем появления поп-апа с подтверждением заказа
         objOrderPage.waitForvisibilityOfElement(objOrderPage.orderFormPopupTitleSuccess);

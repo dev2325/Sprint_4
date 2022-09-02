@@ -2,10 +2,6 @@ package ru.praktikum_services.qa_scooter;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.util.concurrent.TimeUnit;
 
 // Класс страницы заказа
 public class OrderPage extends BasePage {
@@ -15,7 +11,7 @@ public class OrderPage extends BasePage {
         super(driver);
     }
 
-    protected String orderPageUrl = "https://qa-scooter.praktikum-services.ru/order";
+    public static final String ORDER_PAGE_URL = "https://qa-scooter.praktikum-services.ru/order";
     protected By cookieMessageButton = By.xpath(".//button[@class='App_CookieButton__3cvqF']");
 
     // локатор заголовка формы
@@ -38,13 +34,16 @@ public class OrderPage extends BasePage {
     protected By nameLocator = By.xpath(".//input[@placeholder='* Имя']");
     protected By surnameLocator = By.xpath(".//input[@placeholder='* Фамилия']");
     protected By addressLocator = By.xpath(".//input[@placeholder='* Адрес: куда привезти заказ']");
-    protected By metroStationLocator = By.xpath(".//input[@placeholder='* Станция метро']");
+    protected By metroListLocator = By.xpath(".//input[@placeholder='* Станция метро']");
     protected By phoneLocator = By.xpath(".//input[@placeholder='* Телефон: на него позвонит курьер']");
+    protected By metroStationLocator;
 
     // локаторы формы "Про аренду"
     protected By deliveryDateLocator = By.xpath(".//input[@placeholder='* Когда привезти самокат']");
-    protected By rentalPeriodLocator = By.xpath(".//div[text()='* Срок аренды']");
+    protected By rentalPeriodListLocator = By.xpath(".//div[text()='* Срок аренды']");
     protected By commentLocator = By.xpath(".//input[@placeholder='Комментарий для курьера']");
+    protected By colorLocator;
+    protected By rentalPeriodLocator;
 
     // локаторы ошибок (факультативная часть)
     protected By alertIncorrectNameLocator = By.xpath(".//div[text()='Введите корректное имя']");
@@ -64,22 +63,21 @@ public class OrderPage extends BasePage {
     protected By parentIncorrectMetroStationLocator = By.xpath(".//div[text()='Выберите станцию']/parent::div/div/div/input");
     protected By parentIncorrectPhoneLocator = By.xpath("//div[text()='Введите корректный номер']/parent::div/input");
 
-    // метод ожидания загрузки элемента
-    public void waitForvisibilityOfElement(By locator) {
-        new WebDriverWait(driver, 3)
-                .until(ExpectedConditions.visibilityOfElementLocated(locator));
+    // метод для получения локатора цвета по его имени
+    public By getColorLocator(String color) {
+        colorLocator = By.xpath(".//label[@for='" + color + "']");
+        return colorLocator;
     }
 
-    // метод печати текста в поле
-    public void sendKeysToField(By locator, String text) {
-        driver.findElement(locator).sendKeys(text);
+    // метод для получения локатора станции метро по ее имени
+    public By getMetroStationLocator(String metroStation) {
+        metroStationLocator = By.xpath(".//div[contains(text(),'" + metroStation + "')]");
+        return metroStationLocator;
     }
 
-    // метод для клика нужного элемента
-    public void clickElement(By locator) {
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        if (driver.findElement(locator).isEnabled()) {
-            driver.findElement(locator).click();
-        }
+    // метод для получения локатора срока аренды по его имени
+    public By getRentalPeriodLocator(String rentalPeriod) {
+        rentalPeriodLocator = By.xpath(".//div[contains(text(),'" + rentalPeriod + "')]");
+        return rentalPeriodLocator;
     }
 }

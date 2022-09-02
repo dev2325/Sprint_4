@@ -6,6 +6,8 @@ import org.junit.BeforeClass;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.html5.WebStorage;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class QuestionsTest extends BaseTest {
@@ -13,8 +15,9 @@ public class QuestionsTest extends BaseTest {
     @BeforeClass
     public static void setUp() {
         driver = new ChromeDriver();
+        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
         objHomePage = new HomePage(driver);
-        driver.get(objHomePage.homePageUrl);
+        driver.get(HomePage.HOME_PAGE_URL);
         objHomePage.waitForLoadMainImg();
     }
 

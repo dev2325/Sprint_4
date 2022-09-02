@@ -1,13 +1,9 @@
 package ru.praktikum_services.qa_scooter;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-
-import java.util.concurrent.TimeUnit;
 
 // класс главной страницы
 public class HomePage extends BasePage {
@@ -18,6 +14,7 @@ public class HomePage extends BasePage {
     }
 
     // локаторы для кнопок
+    protected By buttonPlaceOrderLocator;
     protected By buttonPlaceOrderTop = By.xpath(".//div[@class='Header_Nav__AGCXC']/button[@class='Button_Button__ra12g']");
     protected By buttonPlaceOrderDown = By.xpath(".//div[@class='Home_FinishButton__1_cWm']/button");
     protected By buttonOrderStatus = By.className("Header_Link__1TAG7");
@@ -54,7 +51,7 @@ public class HomePage extends BasePage {
     protected String answerCancellationString = "Да, пока самокат не привезли. Штрафа не будет, объяснительной записки тоже не попросим. Все же свои.";
     protected String answerRemoteDeliveryString = "Да, обязательно. Всем самокатов! И Москве, и Московской области.";
 
-    protected String homePageUrl = "https://qa-scooter.praktikum-services.ru/";
+    public static final String HOME_PAGE_URL = "https://qa-scooter.praktikum-services.ru/";
     protected By orderStatusField = By.xpath(".//input[@class='Input_Input__1iN_Z Header_Input__xIoUq']");
 
     // для факультативной части
@@ -62,35 +59,19 @@ public class HomePage extends BasePage {
     protected By logoScooter = By.xpath(".//a[@class='Header_LogoScooter__3lsAR']");
     protected By logoYandex = By.xpath(".//img[@alt='Yandex']");
 
-    // метод для клика по нужному элементу
-    public void clickElement(By locator) {
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        if (driver.findElement(locator).isEnabled()) {
-            driver.findElement(locator).click();
-        }
-    }
-
     // метод ожидания загрузки картинки самоката
     public void waitForLoadMainImg() {
         new WebDriverWait(driver, 10)
                 .until(ExpectedConditions.presenceOfElementLocated(imgScooterBlueprint));
     }
 
-    // метод ожидания видимости нужноого элемента
-    public void waitForvisibilityOfElement(By locator) {
-        new WebDriverWait(driver, 3)
-                .until(ExpectedConditions.visibilityOfElementLocated(locator));
-    }
-
-    // скролл до нужного элемента
-    public void scrollToElement(By locator) {
-        driver.manage().timeouts().implicitlyWait(3, TimeUnit.SECONDS);
-        WebElement element = driver.findElement(locator);
-        ((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView();", element);
-    }
-
-    // метод печати текста в поле
-    public void sendKeysToField(By locator, String text) {
-        driver.findElement(locator).sendKeys(text);
+    // метод для получения локатора нужной кнопки "Заказать" по ее порядковому номеру (1 - самая верхняя)
+    public By getButtonPlaceOrderLocator(int numberOfButtonPlaceOrder) {
+        if (numberOfButtonPlaceOrder == 1) {
+            buttonPlaceOrderLocator = buttonPlaceOrderTop;
+        } else {
+            buttonPlaceOrderLocator = buttonPlaceOrderDown;
+        }
+        return buttonPlaceOrderLocator;
     }
 }
